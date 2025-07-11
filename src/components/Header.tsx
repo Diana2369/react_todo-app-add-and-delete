@@ -27,7 +27,6 @@ export const Header: React.FC<Props> = ({
           onChange={e => onChange(e.target.value)}
           disabled={disabled}
           ref={inputRef}
-          autoFocus
         />
       </form>
     </header>

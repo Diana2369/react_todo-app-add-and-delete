@@ -2,35 +2,67 @@ import React from 'react';
 
 type Props = {
   activeCount: number;
+  completedCount: number;
   filter: string;
   setFilter: (filter: string) => void;
+  onClearCompleted: () => void;
 };
 
-export const Footer: React.FC<Props> = ({ activeCount, filter, setFilter }) => (
+export const Footer: React.FC<Props> = ({
+  activeCount,
+  completedCount,
+  filter,
+  setFilter,
+  onClearCompleted,
+}) => (
   <footer className="todoapp__footer" data-cy="Footer">
-    <span className="todo-count" data-cy="TodosCounter">
-      {activeCount} items left
+    <span
+      className="todoapp__todo-count"
+      data-cy="TodosCounter"
+      data-cy-other="ActiveCount"
+    >
+      {activeCount} item{activeCount !== 1 ? 's' : ''} left
     </span>
 
-    <nav className="filter" data-cy="Filter">
-      {['all', 'active', 'completed'].map(f => (
-        <a
-          key={f}
-          href={`#/${f}`}
-          className={`filter__link ${filter === f ? 'selected' : ''}`}
-          data-cy={`FilterLink${f[0].toUpperCase() + f.slice(1)}`}
-          onClick={() => setFilter(f)}
+    <ul className="todoapp__filters" data-cy="Filter">
+      <li>
+        <button
+          data-cy="FilterLinkAll"
+          className={filter === 'all' ? 'selected' : ''}
+          onClick={() => setFilter('all')}
+          type="button"
         >
-          {f[0].toUpperCase() + f.slice(1)}
-        </a>
-      ))}
-    </nav>
+          All
+        </button>
+      </li>
+      <li>
+        <button
+          data-cy="FilterLinkActive"
+          className={filter === 'active' ? 'selected' : ''}
+          onClick={() => setFilter('active')}
+          type="button"
+        >
+          Active
+        </button>
+      </li>
+      <li>
+        <button
+          data-cy="FilterLinkCompleted"
+          className={filter === 'completed' ? 'selected' : ''}
+          onClick={() => setFilter('completed')}
+          type="button"
+        >
+          Completed
+        </button>
+      </li>
+    </ul>
 
     <button
-      type="button"
-      className="todoapp__clear-completed"
       data-cy="ClearCompletedButton"
-      disabled
+      className="todoapp__clear-completed"
+      onClick={onClearCompleted}
+      disabled={completedCount === 0}
+      style={{ visibility: completedCount === 0 ? 'hidden' : 'visible' }}
     >
       Clear completed
     </button>

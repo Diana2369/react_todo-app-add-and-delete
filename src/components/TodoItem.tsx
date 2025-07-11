@@ -20,7 +20,9 @@ export const TodoItem: React.FC<Props> = ({
   >
     <label
       className="todo__status-label"
-      aria-label={todo.completed ? 'Mark todo as not completed' : 'Mark todo as completed'}
+      aria-label={
+        todo.completed ? 'Mark todo as not completed' : 'Mark todo as completed'
+      }
     >
       <input
         data-cy="TodoStatus"
@@ -46,11 +48,11 @@ export const TodoItem: React.FC<Props> = ({
       ×
     </button>
 
-    {(isTemp || isDeleting) && (
-      <div data-cy="TodoLoader" className="modal overlay is-active">
-        <div className="modal-background has-background-white-ter" />
-        <div className="loader" />
-      </div>
-    )}
+    <div
+      data-cy="TodoLoader"
+      className={`todo__loader ${isTemp || isDeleting ? 'is-active' : ''}`}
+    >
+      <div className="loader" />
+    </div>
   </div>
 );

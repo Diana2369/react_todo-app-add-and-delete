@@ -10,6 +10,7 @@ export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [isAdding, setIsAdding] = useState(false);
   const [filter, setFilter] = useState('all');
   const [newTodoTitle, setNewTodoTitle] = useState('');
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
@@ -17,7 +18,15 @@ export const App: React.FC = () => {
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    if (!USER_ID) return;
+    if (!isLoading && !isAdding) {
+      inputRef.current?.focus();
+    }
+  }, [isLoading, isAdding]);
+
+  useEffect(() => {
+    if (!USER_ID) {
+      return;
+    }
 
     setIsLoading(true);
     setError('');
@@ -29,18 +38,23 @@ export const App: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    if (!error) return;
+    if (!error) {
+      return;
+    }
 
     const timer = setTimeout(() => setError(''), 3000);
+
     return () => clearTimeout(timer);
   }, [error]);
 
   const handleAddTodo = async (event: React.FormEvent) => {
     event.preventDefault();
+
     const title = newTodoTitle.trim();
 
     if (!title) {
       setError('Title should not be empty');
+
       return;
     }
 
@@ -48,39 +62,42 @@ export const App: React.FC = () => {
       id: 0,
       userId: USER_ID,
       title,
-      completed: true,
+      completed: false,
     };
 
     setTempTodo(newTodoData);
-    setNewTodoTitle('');
-    setIsLoading(true);
     setError('');
+    setIsAdding(true);
 
     try {
       const createdTodo = await postTodo(newTodoData);
+
       setTodos(current => [...current, createdTodo]);
-      setTimeout(() => setTempTodo(null), 2000);
+      setNewTodoTitle('');
     } catch {
       setError('Unable to add a todo');
       setNewTodoTitle(title);
-      setTempTodo(null);
     } finally {
-      setIsLoading(false);
-      inputRef.current?.focus();
+      setTempTodo(null);
+      setIsAdding(false);
     }
   };
 
   const filteredTodos = todos.filter(todo => {
     switch (filter) {
-      case 'active': return !todo.completed;
-      case 'completed': return todo.completed;
-      default: return true;
+      case 'active':
+        return !todo.completed;
+      case 'completed':
+        return todo.completed;
+      default:
+        return true;
     }
   });
 
   const handleDeleteTodo = async (id: number) => {
     setDeletingTodoId(id);
     setError('');
+
     try {
       await deleteTodo(id);
       setTodos(current => current.filter(todo => todo.id !== id));
@@ -88,10 +105,15 @@ export const App: React.FC = () => {
       setError('Unable to delete a todo');
     } finally {
       setDeletingTodoId(null);
+      setTimeout(() => {
+        inputRef.current?.focus();
+      }, 0);
     }
   };
 
-  if (!USER_ID) return <UserWarning />;
+  if (!USER_ID) {
+    return <UserWarning />;
+  }
 
   return (
     <div className="todoapp">
@@ -102,9 +124,16 @@ export const App: React.FC = () => {
           inputRef={inputRef}
           value={newTodoTitle}
           onChange={setNewTodoTitle}
-          disabled={isLoading}
+          disabled={isLoading || isAdding}
         />
-        {isLoading && <p>Loading...</p>}
+        {isLoading && (
+          <div
+            data-cy="TodoLoader"
+            className={`todo__loader-overlay ${isLoading ? 'is-active' : ''}`}
+          >
+            Loading...
+          </div>
+        )}
         <TodoList
           todos={filteredTodos}
           tempTodo={tempTodo}
@@ -114,11 +143,20 @@ export const App: React.FC = () => {
         {todos.length > 0 && (
           <Footer
             activeCount={todos.filter(t => !t.completed).length}
+            completedCount={todos.filter(t => t.completed).length}
             filter={filter}
             setFilter={setFilter}
+            onClearCompleted={() => {
+              const completedIds = todos
+                .filter(t => t.completed)
+                .map(t => t.id);
+
+              completedIds.forEach(id => handleDeleteTodo(id));
+            }}
           />
         )}
       </div>
+
       <div
         data-cy="ErrorNotification"
         className={`notification is-danger is-light has-text-weight-normal ${!error ? 'hidden' : ''}`}
