@@ -1,3 +1,6 @@
+import React from 'react';
+import { Todo } from '../types/Todo';
+
 type Props = {
   todo: Todo;
   isTemp?: boolean;
@@ -15,7 +18,10 @@ export const TodoItem: React.FC<Props> = ({
     data-cy="Todo"
     className={`todo ${todo.completed ? 'completed' : ''} ${isDeleting ? 'is-deleting' : ''}`}
   >
-    <label className="todo__status-label">
+    <label
+      className="todo__status-label"
+      aria-label={todo.completed ? 'Mark todo as not completed' : 'Mark todo as completed'}
+    >
       <input
         data-cy="TodoStatus"
         type="checkbox"
@@ -40,11 +46,11 @@ export const TodoItem: React.FC<Props> = ({
       ×
     </button>
 
-    {isDeleting && (
-  <div data-cy="TodoLoader" className="modal overlay is-active">
-    <div className="modal-background has-background-white-ter" />
-    <div className="loader" />
-  </div>
-)}
+    {(isTemp || isDeleting) && (
+      <div data-cy="TodoLoader" className="modal overlay is-active">
+        <div className="modal-background has-background-white-ter" />
+        <div className="loader" />
+      </div>
+    )}
   </div>
 );

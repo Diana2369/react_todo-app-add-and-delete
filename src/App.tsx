@@ -17,9 +17,7 @@ export const App: React.FC = () => {
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    if (!USER_ID) {
-      return;
-    }
+    if (!USER_ID) return;
 
     setIsLoading(true);
     setError('');
@@ -31,12 +29,9 @@ export const App: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    if (!error) {
-      return;
-    }
+    if (!error) return;
 
     const timer = setTimeout(() => setError(''), 3000);
-
     return () => clearTimeout(timer);
   }, [error]);
 
@@ -49,11 +44,11 @@ export const App: React.FC = () => {
       return;
     }
 
-    const newTodoData = {
+    const newTodoData: Todo = {
       id: 0,
       userId: USER_ID,
       title,
-      completed: false,
+      completed: true,
     };
 
     setTempTodo(newTodoData);
@@ -64,10 +59,11 @@ export const App: React.FC = () => {
     try {
       const createdTodo = await postTodo(newTodoData);
       setTodos(current => [...current, createdTodo]);
-      setTempTodo(null);
+      setTimeout(() => setTempTodo(null), 2000);
     } catch {
       setError('Unable to add a todo');
       setNewTodoTitle(title);
+      setTempTodo(null);
     } finally {
       setIsLoading(false);
       inputRef.current?.focus();
@@ -76,12 +72,9 @@ export const App: React.FC = () => {
 
   const filteredTodos = todos.filter(todo => {
     switch (filter) {
-      case 'active':
-        return !todo.completed;
-      case 'completed':
-        return todo.completed;
-      default:
-        return true;
+      case 'active': return !todo.completed;
+      case 'completed': return todo.completed;
+      default: return true;
     }
   });
 
@@ -90,7 +83,7 @@ export const App: React.FC = () => {
     setError('');
     try {
       await deleteTodo(id);
-      setTodos(todos => todos.filter(todo => todo.id !== id));
+      setTodos(current => current.filter(todo => todo.id !== id));
     } catch {
       setError('Unable to delete a todo');
     } finally {
@@ -98,14 +91,11 @@ export const App: React.FC = () => {
     }
   };
 
-  if (!USER_ID) {
-    return <UserWarning />;
-  }
+  if (!USER_ID) return <UserWarning />;
 
   return (
     <div className="todoapp">
       <h1 className="todoapp__title">todos</h1>
-
       <div className="todoapp__content">
         <Header
           onSubmit={handleAddTodo}
@@ -129,7 +119,6 @@ export const App: React.FC = () => {
           />
         )}
       </div>
-
       <div
         data-cy="ErrorNotification"
         className={`notification is-danger is-light has-text-weight-normal ${!error ? 'hidden' : ''}`}
