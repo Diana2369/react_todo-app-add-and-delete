@@ -28,7 +28,7 @@ export const Footer: React.FC<Props> = ({
       <li>
         <button
           data-cy="FilterLinkAll"
-          className={filter === 'all' ? 'selected' : ''}
+          className={`filter__link ${filter === 'all' ? 'selected' : ''}`}
           onClick={() => setFilter('all')}
           type="button"
         >
@@ -38,7 +38,7 @@ export const Footer: React.FC<Props> = ({
       <li>
         <button
           data-cy="FilterLinkActive"
-          className={filter === 'active' ? 'selected' : ''}
+          className={`filter__link ${filter === 'active' ? 'selected' : ''}`}
           onClick={() => setFilter('active')}
           type="button"
         >
@@ -48,7 +48,7 @@ export const Footer: React.FC<Props> = ({
       <li>
         <button
           data-cy="FilterLinkCompleted"
-          className={filter === 'completed' ? 'selected' : ''}
+          className={`filter__link ${filter === 'completed' ? 'selected' : ''}`}
           onClick={() => setFilter('completed')}
           type="button"
         >
